@@ -1,37 +1,37 @@
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, DateTime, func, exc, cast
+from sqlalchemy import Integer, func, exc, cast
 from sqlalchemy.types import Date
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from .database import Base
+from .database import db
 
 
-class GameSession(Base):
+class GameSession(db.Model):
     __tablename__ = 'game_session'
 
-    id = Column(Integer, primary_key=True, index=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    ended_at = Column(DateTime, default=None, nullable=True)
-    wins = Column(Integer, default=0)
-    losses = Column(Integer, default=0)
-    draws = Column(Integer, default=0)
-    credits = Column(Integer, default=10)
+    id = db.Column(db.Integer, primary_key=True, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    ended_at = db.Column(db.DateTime, default=None, nullable=True)
+    wins = db.Column(db.Integer, default=0)
+    losses = db.Column(db.Integer, default=0)
+    draws = db.Column(db.Integer, default=0)
+    credits = db.Column(db.Integer, default=10)
 
     def __repr__(self):
         return f'<GameSession {self.id}>'
 
-    def create(self, db_session):
+    def create(self):
         """
         Create a new game session.
         """
-        db_session.add(self)
+        db.session.add(self)
 
-    def save(self, db_session):
+    def save(self):
         """
         Save the game session.
         """
-        db_session.commit()
+        db.session.commit()
 
     def add_credits(self, amount):
         """
@@ -121,12 +121,12 @@ class GameSession(Base):
         self.substract_credits(3)
 
     @classmethod
-    def get_aggregated_data(cls, db_session, date):
+    def get_aggregated_data(cls, date):
         """
         Get the aggregated data of the game session filtered by given date.
         """
         try:
-            data = db_session.query(
+            data = db.session.query(
                 func.sum(cls.wins).label('total_wins'),
                 func.sum(cls.losses).label('total_losses'),
                 func.sum(cls.draws).label('total_draws'),

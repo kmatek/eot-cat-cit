@@ -1,27 +1,22 @@
 from flask_socketio import SocketIO
+from flask_migrate import Migrate
 
 from flaskr import create_app
-from flaskr.database import db_session, init_db
+from flaskr.database import db
 
-
-# Initalize the database
-init_db()
 
 # Create the application
 app = create_app()
-app.db_session = db_session
 socketio = SocketIO(app)
+# Initialize the database
+db.init_app(app)
+migrate = Migrate(app, db)
 
 
 # SocketIO event handlers
 @socketio.on('connect')
 def on_connect():
     print('Someone connected!')
-
-
-@app.teardown_appcontext
-def shutdown_session(exception=None):
-    app.db_session.remove()
 
 
 if __name__ == '__main__':

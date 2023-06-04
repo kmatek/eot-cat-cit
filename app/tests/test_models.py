@@ -9,8 +9,8 @@ def test_create_game_session(app):
     """Test creating a new game session."""
     with app.app_context():
         game_session = GameSession()
-        game_session.create(app.db_session)
-        game_session.save(app.db_session)
+        game_session.create()
+        game_session.save()
 
         assert game_session.id == 1
         assert game_session.credits == 10
@@ -30,8 +30,8 @@ def test_create_game_session_methods(app):
 
     with app.app_context():
         game_session = GameSession(created_at=datetime.utcnow())
-        game_session.create(app.db_session)
-        game_session.save(app.db_session)
+        game_session.create()
+        game_session.save()
 
         assert game_session.get_credit() == 10
         assert game_session.get_date_created == fake_date.date()
@@ -74,20 +74,18 @@ def test_create_game_session_get_aggregated_data(app):
     """
     Test the get_aggregated_data method of the game session model.
     """
-
-    response_data = GameSession.get_aggregated_data(
-        app.db_session, "2023-01-01")
-
-    assert response_data["total_time_played"] is None
-    assert response_data["total_wins"] is None
-    assert response_data["total_losses"] is None
-    assert response_data["total_draws"] is None
-
     with app.app_context():
+        response_data = GameSession.get_aggregated_data("2023-01-01")
+
+        assert response_data["total_time_played"] is None
+        assert response_data["total_wins"] is None
+        assert response_data["total_losses"] is None
+        assert response_data["total_draws"] is None
+
         for i in range(5):
             game_session = GameSession(created_at=datetime.utcnow())
-            game_session.create(app.db_session)
-            game_session.save(app.db_session)
+            game_session.create()
+            game_session.save()
             game_session.increase_wins()
             game_session.increase_losses()
             game_session.increase_draws()
@@ -99,10 +97,9 @@ def test_create_game_session_get_aggregated_data(app):
 
             freezer.stop()
 
-            game_session.save(app.db_session)
+            game_session.save()
 
-        response_data = GameSession.get_aggregated_data(
-            app.db_session, "2023-01-01")
+        response_data = GameSession.get_aggregated_data("2023-01-01")
 
         assert response_data["total_time_played"] == 6000
         assert response_data["total_wins"] == 5
@@ -114,8 +111,8 @@ def test_create_game_session_get_aggregated_data(app):
 
         for i in range(2):
             game_session = GameSession(created_at=datetime.utcnow())
-            game_session.create(app.db_session)
-            game_session.save(app.db_session)
+            game_session.create()
+            game_session.save()
             game_session.increase_wins()
             game_session.increase_losses()
             game_session.increase_draws()
@@ -127,12 +124,11 @@ def test_create_game_session_get_aggregated_data(app):
 
             freezer2.stop()
 
-            game_session.save(app.db_session)
+            game_session.save()
 
         freezer.stop()
 
-        response_data = GameSession.get_aggregated_data(
-            app.db_session, "2023-01-02")
+        response_data = GameSession.get_aggregated_data("2023-01-02")
 
         assert response_data["total_time_played"] == 2400
         assert response_data["total_wins"] == 2
