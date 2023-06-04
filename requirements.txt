@@ -3,3 +3,4 @@ flake8==6.0.0
 Flask==2.3.2
 SQLAlchemy==2.0.15
 psycopg2-binary==2.9.6
+freezegun==1.2.2

@@ -16,8 +16,11 @@ services:
       - HOST=0.0.0.0
       - PORT=8000
       - DATABASE_URL=postgresql://dev:devpass@db:5432/devdb
+      - TEST_DATABASE_URL=postgresql://testdev:testdevpass@testdb:5432/testdevdb
     depends_on:
       db:
+        condition: service_healthy
+      testdb:
         condition: service_healthy
 
   db:
@@ -34,6 +37,22 @@ services:
         interval: 2s
         timeout: 5s
         retries: 5
+  
+  testdb:
+    image: postgres:14.6-alpine
+    restart: always
+    volumes:
+      - testdev-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=testdevdb
+      - POSTGRES_USER=testdev
+      - POSTGRES_PASSWORD=testdevpass
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready -d testdevdb -U testdev"]
+        interval: 2s
+        timeout: 5s
+        retries: 5
 
 volumes:
   dev-db-data:
+  testdev-db-data:
