@@ -15,3 +15,25 @@ services:
       - DEBUG=True
       - HOST=0.0.0.0
       - PORT=8000
+      - DATABASE_URL=postgresql://dev:devpass@db:5432/devdb
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:14.6-alpine
+    restart: always
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=devdb
+      - POSTGRES_USER=dev
+      - POSTGRES_PASSWORD=devpass
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready -d devdb -U dev"]
+        interval: 2s
+        timeout: 5s
+        retries: 5
+
+volumes:
+  dev-db-data:
