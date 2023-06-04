@@ -6,6 +6,7 @@ class Config(object):
     DEBUG = os.environ.get('DEBUG')
     HOST = os.environ.get('HOST')
     PORT = os.environ.get('PORT')
+    SQLALCHEMY_DATABASE_URL = os.environ.get('DATABASE_URL')
 
 
 class TestingConfig(Config):
