@@ -4,3 +4,5 @@ Flask==2.3.2
 SQLAlchemy==2.0.15
 psycopg2-binary==2.9.6
 freezegun==1.2.2
+Flask-SocketIO==5.3.4
+eventlet==0.33.3
