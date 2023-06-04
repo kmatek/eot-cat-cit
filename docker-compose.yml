@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  app:
+    restart: always
+    build:
+      context: .
+    ports:
+      - '8000:8000'
+    volumes:
+      - ./app:/app
+    command: "python main.py"
+    environment:
+      - SECRET_KEY=secret_key
+      - DEBUG=True
+      - HOST=0.0.0.0
+      - PORT=8000
