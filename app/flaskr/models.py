@@ -138,3 +138,10 @@ class GameSession(db.Model):
             raise exc.DataError('Invalid date format.')
 
         return data._asdict()
+
+    @classmethod
+    def get(cls, id):
+        """
+        Get the game session by given id.
+        """
+        return db.get_or_404(cls, id)

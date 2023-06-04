@@ -27,31 +27,6 @@ def get_available_moves(lst: list, parent_index: int = -1) -> list[tuple]:
     return moves
 
 
-def minimax(board, depth, maximizing_player):
-    """
-    Minimax algorithm for Tic-Tac-Toe.
-    :param board: 2D list of strings representing the board
-    :param depth: recursion depth
-    :param maximizing_player: True if maximizing_player, False otherwise
-    """
-    if maximizing_player:
-        max_eval = float("-inf")
-        for move in get_available_moves(board):
-            board[move[0]][move[1]] = "O"
-            eval = minimax(board, depth + 1, False)
-            board[move[0]][move[1]] = " "
-            max_eval = max(max_eval, eval)
-        return max_eval
-    else:
-        min_eval = float("inf")
-        for move in get_available_moves(board):
-            board[move[0]][move[1]] = "X"
-            eval = minimax(board, depth + 1, True)
-            board[move[0]][move[1]] = " "
-            min_eval = min(min_eval, eval)
-        return min_eval
-
-
 class TicTacToe:
     def __init__(self):
         self.board = [
