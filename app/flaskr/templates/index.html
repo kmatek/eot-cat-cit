@@ -58,38 +58,44 @@
         });
 
         $('#start-game').click(function() {
+			// Start game
             socket.emit('start_game')
         })
 
         socket.on('load_game', function(){
+			// Load game
             $('#starter-page').hide()
             $('#tic-tac-toe-board').show()
         })
 		
-		socket.on('update_credits', function(data) {
-            $('#credits').text(data.credits)
-		})
+        socket.on('update_credits', function(data) {
+			// Update credits
+			$('#credits').text(data.credits)
+        })
 
         $('.badge').on('click', function() {
-          if (!$(this).hasClass('disabled')) {
-            $(this).text('X')
-            socket.emit('move', {position: $(this).attr('id')})
-            $('.badge').addClass('disabled');
-          }
+			// Make user move
+			if (!$(this).hasClass('disabled')) {
+				$(this).text('X')
+				socket.emit('move', {position: $(this).attr('id')})
+				$('.badge').addClass('disabled');
+			}
         });
 
         socket.on('computer_move', function(data) {
-          $(`#${data.position}`).text('O')
+			// Make computer move
+			$(`#${data.position}`).text('O')
 
-          $('.badge').each(function() {
-            var text = $(this).text();
-            if (text !== "X" && text !== "O") {
-              $(this).removeClass('disabled');
-            }
-          });
+			$('.badge').each(function() {
+				var text = $(this).text();
+				if (text !== "X" && text !== "O") {
+				$(this).removeClass('disabled');
+				}
+			});
         })
 
-		socket.on('game_over', function(data) {
+        socket.on('game_over', function(data) {
+			// Game over
 			let credits = parseInt($('#credits').text())
 			if (credits < 4 && credits != 0) {
 				$('#play-again').hide()
@@ -104,9 +110,10 @@
 			} else if (data.draw){
 				$('#title').text('Draw!')
 			}
-		})
+        })
 
 		$('#play-again').click(function() {
+			// Play again
 			$('#game-action-buttons').hide()
 			$('.badge').text('')
 			$('.badge').removeClass('disabled');
@@ -115,14 +122,22 @@
 		})
 
 		$('#statistics-button').click(function() {
-			socket.emit('get_statistics')
+			// Get statistics
+			const currentDate = new Date().toISOString().split('T')[0];
+			socket.emit('get_statistics', currentDate)
 		})
 
 		socket.on('statistics', function(data) {
 			$('#statistics-menu').empty()
-			data.forEach(function(item) {
-				$('#statistics-menu').append(`<li class="dropdown-item">${item}</li>`)
-			})
+			$.each(data.data, function(key, value) {
+				if (key === "total_time_played") {
+					var minutes = Math.floor(value / 60);
+					var seconds = value % 60;
+					$('#statistics-menu').append(`<li class="dropdown-item">${key}: ${minutes}m ${seconds}s</li>`)
+				}else{
+					$('#statistics-menu').append(`<li class="dropdown-item">${key}: ${value}</li>`)
+				}
+			});
 		})
 
 		$('#end-session').click(function() {

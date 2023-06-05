@@ -142,6 +142,14 @@ def on_end_session():
     session.clear()
 
 
+@socketio.on('get_statistics')
+def on_get_statistics(data):
+    """
+    Handle the get_statistics event from SocketIO.
+    """
+    emit('statistics', {'data': GameSession.get_aggregated_data(data)})
+
+
 if __name__ == '__main__':
     # Run the application with host, port and debug from app config
     socketio.run(
