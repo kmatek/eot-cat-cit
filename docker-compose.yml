@@ -9,7 +9,8 @@ services:
       - '8000:8000'
     volumes:
       - ./app:/app
-    command: "python main.py"
+    command: > 
+        sh -c "flask --app=main.py db upgrade && python main.py"
     environment:
       - SECRET_KEY=secret_key
       - DEBUG=True
