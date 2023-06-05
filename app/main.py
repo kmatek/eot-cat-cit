@@ -30,8 +30,9 @@ def on_connect():
 @socketio.on('disconnect')
 def on_disconnect():
     print('Someone disconnected!')
-    game_session = GameSession.get(session['game_session_id'])
-    end_game_session(game_session)
+    if 'game_session_id' in session:
+        game_session = GameSession.get(session['game_session_id'])
+        end_game_session(game_session)
 
     session.clear()
 
