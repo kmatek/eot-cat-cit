@@ -30,12 +30,6 @@ def on_connect():
 @socketio.on('disconnect')
 def on_disconnect():
     print('Someone disconnected!')
-    if 'game_session_id' in session:
-        game_session = GameSession.get(session['game_session_id'])
-        game_session.close_game_session()
-        game_session.save()
-
-    session.clear()
 
 
 @socketio.on('start_game')
@@ -53,6 +47,43 @@ def on_start_game():
     game_session.start_game_session()
     game_session.save()
     emit('load_game', {'credits': game_session.get_credit()})
+
+
+@socketio.on('move')
+def on_move(data):
+    # Split the data into variables
+    row, col = data['position'].split("-")
+    game = session['game']
+
+    # Make the move
+    game.make_move(int(row), int(col))
+
+    # Check if there is a winner
+    if game.check_winner():
+        emit('game_over', {'winner': game.check_winner()})
+        return
+
+    # Check if there is a draw
+    if game.is_draw():
+        emit('game_over', {'draw': True})
+        return
+
+    # Make cmoputer move
+    row, col = game.make_computer_move()
+
+    # Check if there is a winner
+    if game.check_winner():
+        emit('computer_move', {'position': f'{row}-{col}'})
+        emit('game_over', {'winner': game.check_winner(), 'draw': False})
+        return
+
+    # Check if there is a draw
+    if game.is_draw():
+        emit('computer_move', {'position': f'{row}-{col}'})
+        emit('game_over', {'draw': True, 'winner': ''})
+        return
+
+    emit('computer_move', {'position': f'{row}-{col}'})
 
 
 if __name__ == '__main__':
