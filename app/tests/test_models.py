@@ -2,7 +2,7 @@ from datetime import datetime
 
 from freezegun import freeze_time
 
-from flaskr.models import GameSession
+from flaskr.models import GameSession, end_game_session
 
 
 def test_create_game_session(app):
@@ -134,3 +134,24 @@ def test_create_game_session_get_aggregated_data(app):
         assert response_data["total_wins"] == 2
         assert response_data["total_losses"] == 2
         assert response_data["total_draws"] == 2
+
+
+@freeze_time("2023-01-1T10:00:00Z")
+def test_end_game_session(app):
+    """
+    Test the end_game_session method of the game session model.
+    """
+    with app.app_context():
+        game_session = GameSession(created_at=datetime.utcnow())
+        game_session.create()
+        game_session.save()
+
+        freezer = freeze_time("2023-01-1T10:20:00Z")
+        freezer.start()
+
+        end_game_session(game_session)
+
+        freezer.stop()
+
+        assert game_session.ended_at is not None
+        assert game_session.time_played == 1200

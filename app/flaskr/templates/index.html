@@ -10,8 +10,8 @@
     <div class="w-100 h-100 d-flex justify-content-center align-items-center">
       <div style="display: none;" id="tic-tac-toe-board">
           <div class="w-100 justify-content-between my-3" style="display: none;" id="game-action-buttons">
-            <button class="btn btn-danger">End game</button>
-            <button class="btn btn-primary"> Play again</button>
+            <button class="btn btn-danger" id="end-session">End session</button>
+            <button class="btn btn-primary" id="play-again"> Play again</button>
           </div>
 		  <h1 id="title"></h1>
           <h2><span>Credits:&nbsp</span><span id="credits"></span></h2>
@@ -90,6 +90,10 @@
         })
 
 		socket.on('game_over', function(data) {
+			let credits = parseInt($('#credits').text())
+			if (credits < 4 && credits != 0) {
+				$('#play-again').hide()
+			}
 			$('#game-action-buttons').show()
 			$('.badge').addClass('disabled');
 
@@ -102,6 +106,36 @@
 			}
 		})
 
+		$('#play-again').click(function() {
+			$('#game-action-buttons').hide()
+			$('.badge').text('')
+			$('.badge').removeClass('disabled');
+			$('#title').text('')
+			socket.emit('new_game')
+		})
+
+		$('#statistics-button').click(function() {
+			socket.emit('get_statistics')
+		})
+
+		socket.on('statistics', function(data) {
+			$('#statistics-menu').empty()
+			data.forEach(function(item) {
+				$('#statistics-menu').append(`<li class="dropdown-item">${item}</li>`)
+			})
+		})
+
+		$('#end-session').click(function() {
+			$('#game-action-buttons').hide()
+			$('#play-again').show()
+			$('.badge').text('')
+			$('.badge').removeClass('disabled');
+			$('#title').text('')
+			$('#starter-page').css('display', 'flex')
+            $('#tic-tac-toe-board').hide()
+			socket.emit('end_session')
+
+		})
 
         window.addEventListener("beforeunload", function (e) {
             e.preventDefault();

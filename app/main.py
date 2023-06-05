@@ -6,7 +6,7 @@ from flask_session import Session
 from flaskr import create_app
 from flaskr.database import db
 from flaskr.utils import TicTacToe
-from flaskr.models import GameSession
+from flaskr.models import GameSession, end_game_session
 
 
 # Create the application
@@ -30,6 +30,10 @@ def on_connect():
 @socketio.on('disconnect')
 def on_disconnect():
     print('Someone disconnected!')
+    game_session = GameSession.get(session['game_session_id'])
+    end_game_session(game_session)
+
+    session.clear()
 
 
 @socketio.on('start_game')
@@ -106,6 +110,36 @@ def on_move(data):
         return
 
     emit('computer_move', {'position': f'{row}-{col}'})
+
+
+@socketio.on('new_game')
+def on_new_game():
+    """
+    Handle the reset_game event from SocketIO.
+    """
+    game = session['game']
+    game.reset()
+
+    game_session = GameSession.get(session['game_session_id'])
+    if game_session.get_credit() == 0:
+        game_session.reset_credits()
+    else:
+        game_session.substract_credits(3)
+    game_session.save()
+
+    emit('load_game')
+    emit('update_credits', {'credits': game_session.get_credit()})
+
+
+@socketio.on('end_session')
+def on_end_session():
+    """
+    Handle the end_session event from SocketIO.
+    """
+    game_session = GameSession.get(session['game_session_id'])
+    end_game_session(game_session)
+
+    session.clear()
 
 
 if __name__ == '__main__':

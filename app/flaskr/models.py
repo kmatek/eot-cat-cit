@@ -145,3 +145,11 @@ class GameSession(db.Model):
         Get the game session by given id.
         """
         return db.get_or_404(cls, id)
+
+
+def end_game_session(game_session: GameSession):
+    """
+    End the game session.
+    """
+    game_session.close_game_session()
+    game_session.save()
