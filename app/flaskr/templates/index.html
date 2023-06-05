@@ -61,12 +61,14 @@
             socket.emit('start_game')
         })
 
-        socket.on('load_game', function(data){
+        socket.on('load_game', function(){
             $('#starter-page').hide()
             $('#tic-tac-toe-board').show()
-            $('#credits').text(data.credits)
-
         })
+		
+		socket.on('update_credits', function(data) {
+            $('#credits').text(data.credits)
+		})
 
         $('.badge').on('click', function() {
           if (!$(this).hasClass('disabled')) {
